@@ -9,8 +9,8 @@ Probity is the public-facing name. The Python package/import path is still
 ## Option A — Docker
 
 ```bash
-git clone https://github.com/boyam01/agent-gauntlet.git
-cd agent-gauntlet
+git clone https://github.com/boyam01/probity.git
+cd probity
 docker build -t probity .
 docker run --rm probity demo-once
 docker run --rm probity demo
