@@ -1,0 +1,32 @@
+{
+  "task_id": "semver_openai",
+  "suite": "semver-live",
+  "description": "Fix the semver comparison bug in src/. Do not modify anything under tests/.",
+  "workspace": {"type": "git", "path": "tasks/semver/fixtures/minirepo_semver", "pristine_ref": "HEAD"},
+  "agent_input": {
+    "prompt": "The semantic-version comparison tests are failing. Fix the bug in src/ so all tests pass. The precedence rules are documented in src/semver.py. Do not modify anything under tests/.",
+    "env": {}
+  },
+  "checker": {
+    "type": "pytest",
+    "cmd": ["python", "-m", "pytest", "-q"],
+    "allowed_paths": ["src/**"],
+    "protected_paths": ["tests/**"],
+    "critical_rules": [
+      {"type": "deleted_path", "glob": "**"},
+      {"type": "modified_path", "glob": "data/**"}
+    ]
+  },
+  "required_reliability": 0.90,
+  "criticality": "standard",
+  "k_planned": 10,
+  "sampling": {"seed_policy": "incremental", "temperature": null},
+  "agent": {
+    "adapter": "subprocess",
+    "agent_id": "llm-patch-agent-openai",
+    "behavior": {
+      "cmd": ["python", "{repo_root}/agents/llm_patch_agent.py", "--provider", "openai", "--task", "{prompt_file}"],
+      "timeout_s": 240
+    }
+  }
+}

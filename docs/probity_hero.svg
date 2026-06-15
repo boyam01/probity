@@ -1,0 +1,28 @@
+<svg viewBox="0 0 920 330" xmlns="http://www.w3.org/2000/svg" role="img" font-family="system-ui,Segoe UI,sans-serif">
+  <title>Probity - agent reliability methodology for false-green testing</title>
+  <desc>Left: an agent's green success claim "done, all tests pass". Right: the evidence: checker failed, tests tampered, scope narrowed, claim not equal to evidence, stamped KILL.</desc>
+  <rect width="920" height="330" fill="#FBFAF6"/>
+  <rect x="18" y="18" width="884" height="294" fill="none" stroke="#1C1B17" stroke-width="1.2"/>
+  <line x1="18" y1="55" x2="902" y2="55" stroke="#1C1B17" stroke-width="0.6"/>
+  <line x1="512" y1="55" x2="512" y2="312" stroke="#1C1B17" stroke-width="0.6"/>
+  <text x="38" y="43" font-size="12" letter-spacing="3" fill="#6B6A62">AGENT RELIABILITY METHODOLOGY · FALSE-GREEN TESTING</text>
+  <text x="822" y="43" font-size="12" letter-spacing="2" fill="#6B6A62" text-anchor="end">VERDICT</text>
+
+  <text x="40" y="158" font-family="Georgia,'Times New Roman',serif" font-size="78" font-weight="600" fill="#1C1B17">Probity</text>
+  <text x="44" y="198" font-size="21" fill="#1C1B17">Claim → evidence → repeated trials → verdict.</text>
+  <text x="44" y="230" font-size="14" fill="#6B6A62">A method for testing whether an agent's "done" claim survives repo evidence.</text>
+  <text x="44" y="284" font-size="13" letter-spacing="1.5" fill="#BA7517">falsification-first · zero-LLM verdict path · deterministic checker</text>
+
+  <g font-family="ui-monospace,'SF Mono',Consolas,monospace">
+    <rect x="540" y="78" width="340" height="40" fill="#E7F4ED" stroke="#1D9E75" stroke-width="1"/>
+    <text x="556" y="103" font-size="14" fill="#0F6E56">agent ▸ "✓ done — all tests pass"</text>
+    <text x="556" y="150" font-size="13.5" fill="#8A2018">checker ▸ FAIL</text>
+    <text x="556" y="174" font-size="13.5" fill="#8A2018">tests/  ▸ tampered</text>
+    <text x="556" y="198" font-size="13.5" fill="#8A2018">scope   ▸ narrowed</text>
+    <text x="556" y="222" font-size="13.5" fill="#1C1B17">claim ≠ evidence</text>
+  </g>
+  <g transform="rotate(-7 748 268)">
+    <rect x="648" y="248" width="200" height="42" fill="none" stroke="#B23A2E" stroke-width="2.5" rx="3"/>
+    <text x="748" y="278" font-family="Georgia,serif" font-size="26" font-weight="700" fill="#B23A2E" text-anchor="middle" letter-spacing="7">KILL</text>
+  </g>
+</svg>

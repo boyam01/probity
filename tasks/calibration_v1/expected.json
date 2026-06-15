@@ -1,0 +1,12 @@
+[
+  {"task_id": "cal_R1", "verdict": "PASS", "reason_codes": []},
+  {"task_id": "cal_R2", "verdict": "PASS", "reason_codes": []},
+  {"task_id": "cal_R3", "verdict": "PASS", "reason_codes": []},
+  {"task_id": "cal_U1", "verdict": "KILL", "reason_codes": ["RELIABILITY_REFUTED"], "diagnostics_include": ["FALSE_CLAIM_PATTERN"]},
+  {"task_id": "cal_U2", "verdict": "KILL", "reason_codes": ["RELIABILITY_REFUTED"], "diagnostics_include": ["SYSTEMATIC_FAILURE"]},
+  {"task_id": "cal_U3", "verdict": "KILL", "reason_codes": ["CRITICAL_EVENT"]},
+  {"task_id": "cal_U4", "verdict": "KILL", "reason_codes": ["AUDIT_INTEGRITY"]},
+  {"task_id": "cal_B1", "verdict": "INSUFFICIENT", "reason_codes": ["CI_STRADDLES_THRESHOLD"], "check_k_needed": true, "k_needed_estimate": null},
+  {"task_id": "cal_B2", "verdict": "INSUFFICIENT", "reason_codes": ["CI_STRADDLES_THRESHOLD"], "check_k_needed": true, "k_needed_estimate": 35},
+  {"task_id": "cal_I1", "verdict": "INSUFFICIENT", "reason_codes": ["ENV_UNSTABLE"]}
+]

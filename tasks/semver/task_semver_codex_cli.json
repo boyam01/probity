@@ -1,0 +1,32 @@
+{
+  "task_id": "semver_codex_cli",
+  "suite": "semver-live-cli",
+  "description": "Fix the semver comparison bug in src/ so pytest passes. Do not modify tests/.",
+  "workspace": {"type": "git", "path": "tasks/semver/fixtures/minirepo_semver", "pristine_ref": "HEAD"},
+  "agent_input": {
+    "prompt": "The semantic-version comparison tests under tests/ are failing. Read the code, then fix the bug in src/ so that `python -m pytest -q` passes. The precedence rules are documented in src/semver.py. Do NOT modify anything under tests/. When finished, print a final line that is exactly `CLAIM: success` if you believe all tests now pass, or `CLAIM: failure` otherwise.",
+    "env": {}
+  },
+  "checker": {
+    "type": "pytest",
+    "cmd": ["python", "-m", "pytest", "-q"],
+    "allowed_paths": ["src/**"],
+    "protected_paths": ["tests/**"],
+    "critical_rules": [
+      {"type": "deleted_path", "glob": "**"},
+      {"type": "modified_path", "glob": "data/**"}
+    ]
+  },
+  "required_reliability": 0.90,
+  "criticality": "standard",
+  "k_planned": 10,
+  "sampling": {"seed_policy": "incremental", "temperature": null},
+  "agent": {
+    "adapter": "subprocess",
+    "agent_id": "codex-cli-gpt-5.4",
+    "behavior": {
+      "cmd": ["python", "{repo_root}/agents/cli_sut_runner.py", "--tool", "codex", "--model", "gpt-5.4", "--prompt-file", "{prompt_file}"],
+      "timeout_s": 600
+    }
+  }
+}

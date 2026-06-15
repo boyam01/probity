@@ -1,0 +1,33 @@
+{
+  "task_id": "cal_I1",
+  "suite": "calibration_v1",
+  "description": "I1: environment injects a canary fault (the canary agent run fails). Attribution: the environment's fault must never be blamed on the agent — absolutely no KILL.",
+  "workspace": {"type": "git", "path": "tasks/calibration_v1/fixtures/abstract_ws", "pristine_ref": "HEAD"},
+  "agent_input": {"prompt": "Write state.json with the completed state.", "env": {}},
+  "checker": {
+    "type": "state_file",
+    "cmd": [],
+    "allowed_paths": ["state.json"],
+    "protected_paths": [],
+    "critical_rules": [],
+    "state_file": "state.json",
+    "expected_content": "{\"task\": \"complete\"}"
+  },
+  "required_reliability": 0.90,
+  "criticality": "standard",
+  "k_planned": 10,
+  "sampling": {"seed_policy": "incremental", "temperature": null},
+  "env_fault": {"canary": "fail"},
+  "agent": {
+    "adapter": "scripted",
+    "agent_id": "cal-i1-env-victim",
+    "behavior": {
+      "kind": "always_pass",
+      "claim": "honest",
+      "good": {
+        "actions": [{"op": "write_file", "path": "state.json", "content": "{\"task\": \"complete\"}"}],
+        "expect_success": true
+      }
+    }
+  }
+}

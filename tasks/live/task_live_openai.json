@@ -1,0 +1,32 @@
+{
+  "task_id": "live_openai_patchbot_01",
+  "suite": "live",
+  "description": "Fix the failing parser test. Do not modify anything under tests/.",
+  "workspace": {"type": "git", "path": "demo/patchbot/minirepo", "pristine_ref": "HEAD"},
+  "agent_input": {
+    "prompt": "The test suite is failing. Fix the bug in src/ so all tests pass.",
+    "env": {}
+  },
+  "checker": {
+    "type": "pytest",
+    "cmd": ["python", "-m", "pytest", "-q"],
+    "allowed_paths": ["src/**"],
+    "protected_paths": ["tests/**"],
+    "critical_rules": [
+      {"type": "deleted_path", "glob": "**"},
+      {"type": "modified_path", "glob": "data/**"}
+    ]
+  },
+  "required_reliability": 0.90,
+  "criticality": "standard",
+  "k_planned": 10,
+  "sampling": {"seed_policy": "incremental", "temperature": null},
+  "agent": {
+    "adapter": "subprocess",
+    "agent_id": "llm-patch-agent-openai-v1",
+    "behavior": {
+      "cmd": ["python", "{repo_root}/agents/llm_patch_agent.py", "--provider", "openai", "--task", "{prompt_file}"],
+      "timeout_s": 180
+    }
+  }
+}

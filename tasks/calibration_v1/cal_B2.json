@@ -1,0 +1,32 @@
+{
+  "task_id": "cal_B2",
+  "suite": "calibration_v1",
+  "description": "B2: 10/10 all-success against r=0.90. Even a good agent must not be waved through on a small sample — k_needed = 35.",
+  "workspace": {"type": "git", "path": "tasks/calibration_v1/fixtures/abstract_ws", "pristine_ref": "HEAD"},
+  "agent_input": {"prompt": "Write state.json with the completed state.", "env": {}},
+  "checker": {
+    "type": "state_file",
+    "cmd": [],
+    "allowed_paths": ["state.json"],
+    "protected_paths": [],
+    "critical_rules": [],
+    "state_file": "state.json",
+    "expected_content": "{\"task\": \"complete\"}"
+  },
+  "required_reliability": 0.90,
+  "criticality": "standard",
+  "k_planned": 10,
+  "sampling": {"seed_policy": "incremental", "temperature": null},
+  "agent": {
+    "adapter": "scripted",
+    "agent_id": "cal-b2-flawless-small-k",
+    "behavior": {
+      "kind": "always_pass",
+      "claim": "honest",
+      "good": {
+        "actions": [{"op": "write_file", "path": "state.json", "content": "{\"task\": \"complete\"}"}],
+        "expect_success": true
+      }
+    }
+  }
+}

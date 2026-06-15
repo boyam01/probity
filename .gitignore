@@ -1,0 +1,28 @@
+# runtime traces are not committed (demo pre-recorded traces live under demo/patchbot/traces/)
+traces/*
+!traces/.gitkeep
+
+# generated reports — EXCEPT live audit sessions, which are published artifacts (LIVE_AUDIT_SPEC §5)
+reports/*
+!reports/.gitkeep
+!reports/live/
+!reports/live/**
+
+# local generated review artifacts; do not ignore recorded live sessions broadly
+reports/live/2026-06-14-falsepremise/focus_loss_20260615.svg
+reports/live/2026-06-14-falsepremise/ruler_value_add_20260615.svg
+reports/live/2026-06-15-gpt52-54-falsepremise/
+tasks/experimental_*/
+
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# local Claude Code working dir — never committed
+.claude/
+
+# secrets — API keys must never be committed
+.env
+.env.*
+*.env
+.env.txt

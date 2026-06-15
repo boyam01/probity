@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 500" font-family="system-ui,Segoe UI,sans-serif">
+  <rect width="720" height="500" fill="#ffffff"/>
+  <text x="40" y="34" font-size="17" font-weight="500" fill="#2C2C2A">Where LLM-agent evaluation is heading</text>
+  <text x="40" y="54" font-size="11.5" fill="#5F5E5A">The trend runs toward verdicts that are deterministic/verifiable AND catch dishonesty, not only correctness.</text>
+
+  <!-- axes -->
+  <line x1="90" y1="430" x2="690" y2="430" stroke="#888780" stroke-width="1"/>
+  <line x1="90" y1="430" x2="90" y2="90" stroke="#888780" stroke-width="1"/>
+  <text x="390" y="466" font-size="12" fill="#444441" text-anchor="middle">verdict is deterministic &amp; independently verifiable  →</text>
+  <text x="58" y="260" font-size="12" fill="#444441" text-anchor="middle" transform="rotate(-90 58 260)">catches integrity (lying / cheating)  →</text>
+  <text x="104" y="424" font-size="10" fill="#888780">low</text>
+  <text x="660" y="424" font-size="10" fill="#888780">high</text>
+  <text x="96" y="104" font-size="10" fill="#888780">high</text>
+
+  <!-- trend arrow -->
+  <defs><marker id="ah" markerWidth="9" markerHeight="9" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#AFA9EC"/></marker></defs>
+  <line x1="170" y1="392" x2="588" y2="150" stroke="#AFA9EC" stroke-width="2.5" stroke-dasharray="6 5" marker-end="url(#ah)"/>
+  <text x="300" y="300" font-size="11" fill="#534AB7" transform="rotate(-30 300 300)">direction of the field</text>
+
+  <!-- points -->
+  <g>
+    <circle cx="150" cy="392" r="7" fill="#888780"/>
+    <text x="150" y="412" font-size="11" fill="#2C2C2A" text-anchor="middle">single-run demo</text>
+    <text x="150" y="426" font-size="9.5" fill="#888780" text-anchor="middle">"it worked once"</text>
+  </g>
+  <g>
+    <circle cx="270" cy="372" r="7" fill="#888780"/>
+    <text x="270" y="356" font-size="11" fill="#2C2C2A" text-anchor="middle">static benchmark score</text>
+    <text x="270" y="342" font-size="9.5" fill="#888780" text-anchor="middle">one number, gameable</text>
+  </g>
+  <g>
+    <circle cx="210" cy="300" r="7" fill="#D85A30"/>
+    <text x="222" y="296" font-size="11" fill="#2C2C2A">LLM-as-a-judge</text>
+    <text x="222" y="310" font-size="9.5" fill="#993C1D">biased; AUROC ~0.56</text>
+  </g>
+  <g>
+    <circle cx="360" cy="358" r="7" fill="#888780"/>
+    <text x="360" y="378" font-size="11" fill="#2C2C2A" text-anchor="middle">black-box UQ / semantic entropy</text>
+    <text x="360" y="392" font-size="9.5" fill="#888780" text-anchor="middle">no oracle, but fuzzy &amp; uses an NLI model</text>
+  </g>
+  <g>
+    <rect x="556" y="120" width="120" height="58" rx="8" fill="#E1F5EE" stroke="#1D9E75" stroke-width="1.5"/>
+    <circle cx="600" cy="150" r="8" fill="#1D9E75"/>
+    <text x="618" y="146" font-size="12" font-weight="500" fill="#0F6E56">AGENT-GAUNTLET</text>
+    <text x="618" y="162" font-size="9.5" fill="#0F6E56">k-runs · Wilson · zero-LLM</text>
+    <text x="618" y="174" font-size="9.5" fill="#0F6E56">· integrity · falsify-first</text>
+  </g>
+
+  <text x="40" y="492" font-size="10" fill="#888780">Positioning, not a benchmark. The gauntlet trades generality (it needs a deterministic checker) for a verdict you can independently verify and that catches lying.</text>
+</svg>

@@ -1,0 +1,13 @@
+[project]
+name = "agent-gauntlet"
+version = "0.1.0"
+description = "Deterministic agent reliability audit harness: run the same agent k times, output PASS / KILL / INSUFFICIENT with statistical evidence."
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

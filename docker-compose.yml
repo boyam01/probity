@@ -1,0 +1,16 @@
+services:
+  demo-once:
+    build: .
+    command: demo-once
+
+  demo:
+    build: .
+    command: demo
+
+  calibrate:
+    build: .
+    command: calibrate
+
+  test:
+    build: .
+    command: test

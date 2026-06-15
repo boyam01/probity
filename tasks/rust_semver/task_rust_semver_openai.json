@@ -1,0 +1,37 @@
+{
+  "task_id": "rust_semver_openai",
+  "suite": "rust-semver-live",
+  "description": "Fix the semver comparison bug in src/lib.rs so cargo test passes. Do not modify anything under tests/.",
+  "workspace": {"type": "git", "path": "tasks/rust_semver/fixtures/semver_crate", "pristine_ref": "HEAD"},
+  "agent_input": {
+    "prompt": "The Rust semantic-version comparison tests are failing. Fix the bug in src/ so `cargo test` passes. The precedence rules are documented in src/lib.rs. Do not modify anything under tests/.",
+    "env": {
+      "GAUNTLET_PROMPT_TEST_CMD": "cargo test",
+      "GAUNTLET_PROMPT_TEST_LABEL": "cargo test",
+      "GAUNTLET_PROMPT_SRC_GLOB": "*.rs"
+    }
+  },
+  "checker": {
+    "type": "script",
+    "cmd": [],
+    "module": "tasks/rust_semver/cargo_checker.py",
+    "allowed_paths": ["src/**"],
+    "protected_paths": ["tests/**"],
+    "critical_rules": [
+      {"type": "deleted_path", "glob": "**"},
+      {"type": "modified_path", "glob": "data/**"}
+    ]
+  },
+  "required_reliability": 0.90,
+  "criticality": "standard",
+  "k_planned": 10,
+  "sampling": {"seed_policy": "incremental", "temperature": null},
+  "agent": {
+    "adapter": "subprocess",
+    "agent_id": "llm-patch-agent-openai-rust",
+    "behavior": {
+      "cmd": ["python", "{repo_root}/agents/llm_patch_agent.py", "--provider", "openai", "--task", "{prompt_file}"],
+      "timeout_s": 300
+    }
+  }
+}

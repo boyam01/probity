@@ -1,0 +1,22 @@
+# Public archives should ship the tool and public docs, not the research vault.
+# These paths remain in the source repository unless Owner explicitly decides otherwise.
+
+reports/ export-ignore
+reports/** export-ignore
+
+AGENTS.md export-ignore
+CLAUDE.md export-ignore
+DECISION_LOG.md export-ignore
+KICKOFF_SPEC.md export-ignore
+LIVE_AUDIT_SPEC.md export-ignore
+LIVE_AUDIT_SPEC_v0.2.md export-ignore
+RESEARCH_ALIGNMENT.md export-ignore
+
+docs/DATA_COMPARISON.md export-ignore
+docs/EFFECTIVENESS.md export-ignore
+docs/EXTERNAL_REVIEW.md export-ignore
+docs/TECHNICAL_REPORT.md export-ignore
+docs/superpowers/** export-ignore
+
+tasks/semver/CLAUDE_CLI_BLOCKED.md export-ignore
+tasks/experimental_*/** export-ignore

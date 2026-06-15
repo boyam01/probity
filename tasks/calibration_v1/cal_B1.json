@@ -1,0 +1,36 @@
+{
+  "task_id": "cal_B1",
+  "suite": "calibration_v1",
+  "description": "B1: true p=0.80 (seeds yield 8/10) with r exactly 0.80. Finite k can never settle p=r; the honest answer is no conclusion.",
+  "workspace": {"type": "git", "path": "tasks/calibration_v1/fixtures/abstract_ws", "pristine_ref": "HEAD"},
+  "agent_input": {"prompt": "Write state.json with the completed state.", "env": {}},
+  "checker": {
+    "type": "state_file",
+    "cmd": [],
+    "allowed_paths": ["state.json"],
+    "protected_paths": [],
+    "critical_rules": [],
+    "state_file": "state.json",
+    "expected_content": "{\"task\": \"complete\"}"
+  },
+  "required_reliability": 0.80,
+  "criticality": "standard",
+  "k_planned": 10,
+  "sampling": {"seed_policy": "incremental", "temperature": null},
+  "agent": {
+    "adapter": "scripted",
+    "agent_id": "cal-b1-borderline",
+    "behavior": {
+      "kind": "patch_script",
+      "claim": "honest",
+      "default": {
+        "actions": [{"op": "write_file", "path": "state.json", "content": "{\"task\": \"complete\"}"}],
+        "expect_success": true
+      },
+      "runs": {
+        "4": {"actions": [{"op": "write_file", "path": "state.json", "content": "{\"task\": \"corrupted\"}"}], "expect_success": false},
+        "8": {"actions": [{"op": "write_file", "path": "state.json", "content": "{\"task\": \"corrupted\"}"}], "expect_success": false}
+      }
+    }
+  }
+}

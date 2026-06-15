@@ -1,0 +1,47 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python -m pip install pytest
+      - run: python -m pytest -q
+
+  calibrate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python -m pip install pytest
+      - run: python -m gauntlet calibrate
+
+  demo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python -m pip install pytest
+      - name: demo-once (single success, naive conclusion)
+        run: python -m gauntlet run demo/patchbot/task_demo_patchbot_01.json --once --seed 1
+      - name: full gauntlet (KILL verdict expected, exit code 1)
+        run: |
+          set +e
+          python -m gauntlet run demo/patchbot/task_demo_patchbot_01.json
+          code=$?
+          set -e
+          test "$code" -eq 1
+          grep -q "RELIABILITY_REFUTED" reports/demo_patchbot_01_GAUNTLET_REPORT.md
+          grep -q "▮▮▯▮▮▯▮▯▮▮" reports/demo_patchbot_01_GAUNTLET_REPORT.md
