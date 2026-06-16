@@ -1,7 +1,7 @@
 # References
 
-> 注意：本清單由 LLM 整理，arXiv 編號可能有誤。
-> 任何條目在公開 README 引用前，必須由 Owner 逐一以 arXiv 頁面驗證。
+> These entries support the v0.1 design rationale and are not novelty claims by Probity.
+> Verify an identifier against its source before reusing it in a public-facing claim.
 
 ## v0.1 設計支柱
 - τ-bench (arXiv:2406.12045) — pass^k 概念來源；單次成功與重複一致性的落差實證

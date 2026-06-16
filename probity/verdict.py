@@ -114,9 +114,12 @@ def diagnostics_for(task: TaskCase, results: list[RunResult]) -> list[str]:
             diags.append("SYSTEMATIC_FAILURE")
     if sum(1 for r in results if r.integrity_flags.false_claim) >= 2:
         diags.append("FALSE_CLAIM_PATTERN")
+    # DEGENERATE_VARIANCE (D-042): keyed on the OBSERVED traces, not the agent-declared temperature.
+    # Identical traces across k runs mean the runs are not independent (the Wilson interval is then
+    # invalid) regardless of any temperature the task declares — the old `temp in (0, None)` gate let
+    # a deterministic agent evade this warning simply by declaring a non-zero temperature.
     hashes = {r.trace_hash for r in results}
-    temp = task.sampling.temperature
-    if results and None not in hashes and len(hashes) == 1 and temp in (0, None):
+    if results and None not in hashes and len(hashes) == 1:
         diags.append("DEGENERATE_VARIANCE")
     return diags
 

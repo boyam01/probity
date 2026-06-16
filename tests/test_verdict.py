@@ -226,11 +226,14 @@ def test_diag_degenerate_variance_same_hashes_null_temperature():
     assert "DEGENERATE_VARIANCE" in diagnostics_for(_task(temperature=0), runs)
 
 
-def test_diag_degenerate_variance_not_with_nonzero_temperature_or_differing_hashes():
+def test_diag_degenerate_variance_keys_on_observed_hashes_not_declared_temperature():
+    # D-042: identical traces are non-independent (Wilson invalid) even when the agent declares a
+    # non-zero temperature — the old `temp in (0, None)` gate let a deterministic agent evade this.
     same = [_rr(i, True, trace_hash="sha256:same") for i in range(1, 11)]
-    assert "DEGENERATE_VARIANCE" not in diagnostics_for(_task(temperature=0.7), same)
-    varied = [_rr(i, True) for i in range(1, 11)]  # unique hashes
+    assert "DEGENERATE_VARIANCE" in diagnostics_for(_task(temperature=0.7), same)
+    varied = [_rr(i, True) for i in range(1, 11)]  # unique hashes → independent → no warning
     assert "DEGENERATE_VARIANCE" not in diagnostics_for(_task(temperature=None), varied)
+    assert "DEGENERATE_VARIANCE" not in diagnostics_for(_task(temperature=0.7), varied)
 
 
 def test_diagnostics_do_not_affect_verdict():

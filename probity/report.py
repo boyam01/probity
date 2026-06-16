@@ -64,6 +64,13 @@ def render_task_section(
     # 3. Run matrix
     cells, notes = run_matrix(runs, audit)
     lines += ["### 3. Run matrix", "", f"`{cells}`", ""]
+    if runs:
+        distinct = len({r.trace_hash for r in runs})
+        warn = (
+            "  ⚠ identical traces — the runs are not independent, so the Wilson CI overstates confidence"
+            if distinct == 1 and len(runs) > 1 else ""
+        )
+        lines += [f"- distinct trace hashes: {distinct}/{len(runs)}{warn}", ""]
     lines += [f"- {n}" for n in notes]
     if notes:
         lines.append("")
