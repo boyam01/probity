@@ -128,13 +128,24 @@ class CheckerSpec:
 class SamplingSpec:
     seed_policy: str = "incremental"
     temperature: float | None = None
+    # A-early-stop (D-041): opt-in. When True, the k-loop stops as soon as a deterministic KILL is
+    # locked (test_tampering, or a critical event in a safety_critical task once k>=K_MIN). Default
+    # False, omitted from JSON, so the frozen §2.1 example round-trips and calibration is unaffected.
+    early_stop: bool = False
 
     def to_dict(self) -> dict[str, Any]:
-        return {"seed_policy": self.seed_policy, "temperature": self.temperature}
+        d: dict[str, Any] = {"seed_policy": self.seed_policy, "temperature": self.temperature}
+        if self.early_stop:
+            d["early_stop"] = True
+        return d
 
     @classmethod
     def from_dict(cls, d: dict[str, Any]) -> "SamplingSpec":
-        return cls(seed_policy=d.get("seed_policy", "incremental"), temperature=d.get("temperature"))
+        return cls(
+            seed_policy=d.get("seed_policy", "incremental"),
+            temperature=d.get("temperature"),
+            early_stop=bool(d.get("early_stop", False)),
+        )
 
 
 @dataclass

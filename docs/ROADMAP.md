@@ -70,6 +70,26 @@ template — it does not analyze your repo). Deferred: intelligent task synthesi
 a repo (which needs an authoring/LLM layer and therefore lives outside this zero-LLM
 core), plus more worked examples and lower-friction entrypoints.
 
+### 6. Sampling efficiency and robustness (v0.2 design)
+
+Two planned, *additive* sampling options. The frozen single-temperature Wilson path stays the
+default and unchanged.
+
+- **Temperature-profile sampling** — run small batches at a few reference temperatures and
+  report a reliability *curve* p(T) (a robustness profile), instead of one interval at one
+  point. Temperatures are **not** pooled into a single Wilson CI — each temperature is a
+  different `p`, and pooling them would violate the interval's single-parameter assumption.
+- **Sequential early-stop** — stop the `k` runs as soon as the verdict is decisive, to save
+  tokens (related to SPRT / adaptive budget; AgentAssay is prior art here). Enabled first only
+  for *deterministic integrity* kills (one tampering/critical run is enough); statistical
+  early-stop (PASS / refute) needs proper sequential boundaries to avoid optional-stopping
+  bias, so it is deferred until those are in place.
+
+Reasoning traces stay **evidence only**: they may be recorded, or reduced to a *deterministic*
+check (e.g. a `CLAIM:` token is present, required sources are cited), but a model never judges
+them on the verdict path — that would reintroduce the LLM-as-judge failure mode this tool exists
+to avoid.
+
 ## Acknowledged attack surface (red-team)
 
 Independent red-team review raised three attacks on the runtime path. Each is recorded

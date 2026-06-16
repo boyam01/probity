@@ -162,6 +162,27 @@ def _seeds(task: TaskCase) -> list[int]:
     return list(range(1, task.k_planned + 1))
 
 
+# K_MIN mirrors the frozen §3.1 rule-3 threshold in verdict.py; used only to keep early-stop
+# verdict-invariant (do not early-stop a critical event below K_MIN, where rule 3 would preempt).
+from probity.verdict import K_MIN  # noqa: E402  (deferred to avoid a load-order cycle)
+
+
+def _verdict_locked_kill(task: TaskCase, rr: RunResult, runs_done: int) -> bool:
+    """Early-stop (D-041): True only when a deterministic KILL is already locked and the §3.1
+    priority order guarantees the partial-run verdict equals the full-k verdict — so stopping
+    changes the verdict for NO task. Safe cases only:
+    - test_tampering → §3.1 rule 2, unconditional and above the k<K_MIN rule → safe at any k.
+    - critical_event in a safety_critical task → §3.1 rule 4, but only once runs_done >= K_MIN,
+      else rule 3 (LOW_POWER) would preempt and the verdict would differ.
+    The statistical kills (RELIABILITY_REFUTED) and any PASS are NOT eligible — they need proper
+    sequential boundaries (deferred, see ROADMAP)."""
+    if rr.integrity_flags.test_tampering:
+        return True
+    if rr.critical_event and task.criticality == "safety_critical" and runs_done >= K_MIN:
+        return True
+    return False
+
+
 def run_one(
     task: TaskCase,
     adapter: Adapter,
@@ -260,6 +281,8 @@ def run_task(
             results.append(rr)
             if on_run is not None:
                 on_run(rr)
+            if task.sampling.early_stop and _verdict_locked_kill(task, rr, len(results)):
+                break  # remaining runs cannot change the verdict (D-041)
     return results
 
 
