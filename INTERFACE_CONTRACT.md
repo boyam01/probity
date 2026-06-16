@@ -1,6 +1,6 @@
 # INTERFACE_CONTRACT.md — 凍結規格（§2 + §3 + §4 全文）
 
-> 本文件為 AGENT-GAUNTLET v0.1 的凍結介面契約。
+> 本文件為 Probity v0.1 的凍結介面契約。
 > 任何修改需 Owner 批准（先在 `DECISION_LOG.md` 寫提案）。
 
 ---
@@ -208,7 +208,7 @@ def check(workspace: Path, trace: Trace, task: TaskCase) -> CheckResult
 # CheckResult: passed, failure_class, integrity_flags, critical_event, detail, modified_files
 ```
 
-### §4.2 內建 primitives（`gauntlet/checker.py`，全部 deterministic）
+### §4.2 內建 primitives（`probity/checker.py`，全部 deterministic）
 
 - `run_pytest(workspace, cmd) -> bool`：subprocess 執行，`returncode == 0` 為過。
 - `modified_files(workspace) -> set[str]`：`git diff --name-only <pristine_ref>` + `git status --porcelain`（含新增/刪除）。

@@ -11,7 +11,7 @@ RUN apt-get update \
 WORKDIR /probity
 
 COPY pyproject.toml README.md Makefile EVAL_SPEC.md PROJECT_STATE.md INTERFACE_CONTRACT.md ./
-COPY gauntlet ./gauntlet
+COPY probity ./probity
 COPY demo ./demo
 COPY tasks ./tasks
 COPY tests ./tests

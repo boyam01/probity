@@ -1,8 +1,8 @@
 """GAUNTLET_REPORT.md generation — frozen §2.4 section order, pure templates, zero LLM."""
 from __future__ import annotations
 
-from gauntlet.stats import k_needed
-from gauntlet.types import AuditReport, RunResult, TaskAudit, TaskCase
+from probity.stats import k_needed
+from probity.types import AuditReport, RunResult, TaskAudit, TaskCase
 
 PEDAGOGY_TEMPLATE = (
     "With k={k} runs and {s} successes, the 95% Wilson interval is [{lo}, {hi}]. "
@@ -129,7 +129,7 @@ def render_task_section(
     ]
 
     # 8. Reproduce
-    repro = f"python -m gauntlet run {task_path}" if task_path else "python -m gauntlet run <task_case.json>"
+    repro = f"python -m probity run {task_path}" if task_path else "python -m probity run <task_case.json>"
     lines += ["### 8. Reproduce", "", "```", repro, "```", ""]
     return "\n".join(lines)
 

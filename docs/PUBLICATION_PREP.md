@@ -1,21 +1,20 @@
-# Publication prep
+# Release hygiene and export boundary
 
-This repo is prepared for a future public launch, but publishing still requires
-explicit Owner approval in the current conversation.
+Probity is public. This document is the standing release-hygiene checklist: what
+stays out of the public tree, the language to avoid, and the gates to run before
+every update. It is not a claim that the project is unreleased.
 
-## Hard gates
+## Ongoing discipline (regardless of visibility)
 
-- Do not push.
-- Do not create a public GitHub repo or organization.
-- Do not change repository visibility.
-- Do not publish to PyPI or any package registry.
-- Do not claim the `probity` package name is reserved or owned.
-- Keep the Python package/import path as `gauntlet` unless Owner explicitly
-  approves a rename.
-- Do not publish private research reports, raw traces, model-session logs, API
-  keys, local `.env` files, or benchmark artifacts.
-- Do not delete or untrack source-repo evidence just to make the public package
-  smaller. Use the public export boundary instead.
+- The public tree ships the tool, examples, and methodology/usage docs only.
+- Private research reports, raw traces, model-session logs, API keys, local
+  `.env` files, and benchmark artifacts stay in the source repository. The export
+  boundary is enforced by `.gitattributes` (`export-ignore`) and checked by
+  `scripts/audit_public_release.py`; it does not delete source-repo evidence.
+- Do not claim the `probity` package name is reserved or owned on any registry.
+- Frozen behaviour (schema §2, verdict §3, checker §4) changes only through a
+  `DECISION_LOG.md` amendment that keeps calibration 10/10 with zero per-case
+  patches.
 
 ## Public positioning
 
@@ -41,27 +40,15 @@ Avoid:
 - Wilson as novelty;
 - model leaderboard framing.
 
-## GitHub organization / repo checklist
+## Repository presentation
 
-Recommended shape:
-
-- create a clean GitHub organization rather than using a crowded personal page;
-- choose a name that does not imply package-name ownership;
-- create the repo private first;
-- push only the tool, public usage docs, and methodology docs;
-- keep `reports/` and private research docs out of the public export;
-- keep the source repository evidence and governance history intact unless
-  Owner explicitly approves a separate archival move;
-- push only after docs, Docker smoke, calibration, tests, and public export audit pass;
-- turn public only after final Owner approval.
-
-Suggested repo descriptions:
+Description (pick one):
 
 - `Agent reliability methodology for false-green testing of AI coding agents.`
 - `Evidence-based reliability testing for AI coding agents.`
 - `Claim -> evidence -> verdict for coding-agent reliability audits.`
 
-Suggested topics:
+Topics:
 
 `ai-agents`, `coding-agents`, `agent-evaluation`, `agent-reliability`,
 `llmops`, `software-testing`, `ci`, `test-automation`, `developer-tools`,
@@ -74,9 +61,7 @@ Social preview:
 - text: `Probity`, `Agent reliability methodology`, `False-green testing for AI coding agents`;
 - use a solid background so it works across platforms.
 
-## Pre-launch verification
-
-Run:
+## Gates to run before every public update
 
 ```bash
 docker build -t probity .
@@ -85,7 +70,7 @@ docker run --rm probity demo
 docker run --rm probity calibrate
 docker run --rm probity test
 python -m pytest -q
-python -m gauntlet calibrate
+python -m probity calibrate
 python scripts/audit_public_claims.py
 python scripts/audit_public_release.py
 ```
@@ -99,16 +84,17 @@ Review:
 - `docs/LAUNCH_COPY.md` for banned language;
 - `docs/DOCKER.md` for install friction;
 - `docs/DISCOVERABILITY.md` for GitHub topics, repo description, README title, and social preview;
+- `docs/ROADMAP.md` for what is deferred and why;
 - `README.md` for over-specific or overconfident claims.
 
-Before any public package or archive, verify the public export excludes
+Before publishing any package or archive, verify the public export excludes
 `reports/`, secret files, and private research-report docs. The
 `audit_public_release.py` gate checks the export boundary without deleting
 source-repo evidence.
 
-## Forum launch path
+## Feedback path
 
-Start with feedback-oriented posts:
+Useful, feedback-oriented framings:
 
 - "I built a false-green testing methodology for coding agents. What failure modes am I
   missing?"
@@ -116,13 +102,6 @@ Start with feedback-oriented posts:
   the checker passes?"
 - "Can you break this agent reliability methodology?"
 
-Ask for critique on:
-
-- verdict semantics;
-- task schema;
-- Docker quickstart;
-- evidence bundle;
-- missing competitors / prior art;
-- real false-green cases people have seen.
-
+Ask for critique on verdict semantics, task schema, the Docker quickstart, the
+evidence bundle, missing prior art, and real false-green cases people have seen.
 Do not lead with valuation, model superiority, or broad safety claims.

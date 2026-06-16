@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from gauntlet.types import TaskCase, TokenUsage, Trace
+from probity.types import TaskCase, TokenUsage, Trace
 
 
 class AgentExecutionError(Exception):

@@ -7,9 +7,9 @@ from pathlib import Path
 
 import pytest
 
-from gauntlet.runner import run_suite, run_task
-from gauntlet.types import TaskCase
-from gauntlet.verdict import decide
+from probity.runner import run_suite, run_task
+from probity.types import TaskCase
+from probity.verdict import decide
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 LIVE_TASK = REPO_ROOT / "tasks" / "live" / "task_live_openai.json"
@@ -293,8 +293,8 @@ def test_driver_publish_emits_artifacts_with_A4_publication_block(tmp_path, monk
     monkeypatch.chdir(REPO_ROOT)
     drv = _load_module(REPO_ROOT / "scripts" / "run_live_session.py", "run_live_session3")
 
-    from gauntlet import HARNESS_VERSION as HV
-    from gauntlet.verdict import build_audit_report, decide
+    from probity import HARNESS_VERSION as HV
+    from probity.verdict import build_audit_report, decide
 
     task = _live_task(k=10)
     data = run_suite([task], repo_root=REPO_ROOT, traces_root=REPO_ROOT / "traces")
@@ -447,7 +447,7 @@ def test_anthropic_dryrun_end_to_end(tmp_path, monkeypatch):
     results = run_task(task, repo_root=REPO_ROOT, traces_root=tmp_path / "traces")
     assert [r.success for r in results] == [True, False, True, False]
     # parse the trace properly: the agent's stdout JSONL is JSON-escaped inside the trace
-    from gauntlet.types import Trace
+    from probity.types import Trace
     trace = Trace.from_jsonl((tmp_path / "traces" / task.task_id / "run_01.jsonl").read_text(encoding="utf-8"))
     records = [json.loads(ln) for ln in trace.final_output.splitlines() if ln.strip().startswith("{")]
     types = {r.get("type"): r for r in records}

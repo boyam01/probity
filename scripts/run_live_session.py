@@ -35,11 +35,11 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT))
 
-from gauntlet import HARNESS_VERSION  # noqa: E402
-from gauntlet.report import render_markdown  # noqa: E402
-from gauntlet.runner import run_suite  # noqa: E402
-from gauntlet.types import TaskCase  # noqa: E402
-from gauntlet.verdict import build_audit_report, decide, verify_spec  # noqa: E402
+from probity import HARNESS_VERSION  # noqa: E402
+from probity.report import render_markdown  # noqa: E402
+from probity.runner import run_suite  # noqa: E402
+from probity.types import TaskCase  # noqa: E402
+from probity.verdict import build_audit_report, decide, verify_spec  # noqa: E402
 
 # §A4.5 wording is frozen: never "we audited GPT/Claude" — the wrapper is part of the
 # measurement. §A4.3 paragraph is verbatim and template-generated (zero LLM).

@@ -6,15 +6,16 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+import sys
 import tempfile
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from gauntlet.adapters.base import Adapter, AgentExecutionError, AgentRunOutcome
-from gauntlet.adapters.scripted import ScriptedAgent
-from gauntlet.adapters.subprocess import SubprocessAgent
-from gauntlet.checker import check, parse_claim
-from gauntlet.types import (
+from probity.adapters.base import Adapter, AgentExecutionError, AgentRunOutcome
+from probity.adapters.scripted import ScriptedAgent
+from probity.adapters.subprocess import SubprocessAgent
+from probity.checker import check, parse_claim
+from probity.types import (
     CheckerOutput,
     CheckResult,
     CriticalEventRecord,
@@ -54,6 +55,11 @@ def make_adapter(task: TaskCase) -> Adapter:
         return ScriptedAgent(task.agent.behavior, agent_id=task.agent.agent_id)
     if task.agent.adapter == "subprocess":
         return SubprocessAgent(task.agent.behavior, agent_id=task.agent.agent_id)
+    if task.agent.adapter == "docker":
+        # lazy import: the zero-dependency core never loads the docker adapter unless selected (A3, D-040)
+        from probity.adapters.docker import DockerAgent
+
+        return DockerAgent(task.agent.behavior, agent_id=task.agent.agent_id)
     raise TaskRejected(f"{task.task_id}: unknown adapter {task.agent.adapter!r}")
 
 
@@ -75,8 +81,8 @@ def _git_ok(cwd: Path, *args: str) -> None:
 
 
 _COMMIT_ARGS = (
-    "-c", "user.name=gauntlet",
-    "-c", "user.email=gauntlet@local",
+    "-c", "user.name=probity",
+    "-c", "user.email=probity@local",
     "-c", "commit.gpgsign=false",
 )
 
@@ -111,7 +117,7 @@ class WorkspaceSource:
     def __enter__(self) -> tuple[Path, str]:
         if (self.src / ".git").exists():
             return self.src, self.pristine_ref
-        self._staging = tempfile.mkdtemp(prefix="gauntlet_stage_")
+        self._staging = tempfile.mkdtemp(prefix="probity_stage_")
         dest = Path(self._staging) / "ws"
         shutil.copytree(self.src, dest, ignore=shutil.ignore_patterns(".git"))
         ensure_git_workspace(dest)
@@ -132,7 +138,7 @@ class Worktree:
         self.path: Path | None = None
 
     def __enter__(self) -> Path:
-        self._tmp_parent = tempfile.mkdtemp(prefix="gauntlet_wt_")
+        self._tmp_parent = tempfile.mkdtemp(prefix="probity_wt_")
         self.path = Path(self._tmp_parent) / "wt"
         _git_ok(self.source_repo, "worktree", "add", "--detach", "-q", str(self.path), self.pristine_ref)
         return self.path
@@ -265,7 +271,7 @@ _CANARY_EXPECTED = "canary-ok"
 
 
 def _canary_task(workspace_rel: str) -> TaskCase:
-    from gauntlet.types import AgentInput, CheckerSpec, SamplingSpec, WorkspaceSpec
+    from probity.types import AgentInput, CheckerSpec, SamplingSpec, WorkspaceSpec
 
     return TaskCase(
         task_id="__canary__",
@@ -290,7 +296,7 @@ def run_canary(repo_root: Path, traces_root: Path, fault: bool = False) -> bool:
     """One run of the always-correct scripted agent on a fixed task. ``fault=True``
     swaps in a broken agent (calibration I1's injected environment fault) so the
     real canary code path executes and fails."""
-    tmp = Path(tempfile.mkdtemp(prefix="gauntlet_canary_"))
+    tmp = Path(tempfile.mkdtemp(prefix="probity_canary_"))
     try:
         (tmp / "README.txt").write_text("canary workspace\n", encoding="utf-8")
         ensure_git_workspace(tmp)
@@ -323,6 +329,29 @@ def run_canary(repo_root: Path, traces_root: Path, fault: bool = False) -> bool:
 
 
 # ---------------------------------------------------------------------------
+# A1 (D-040): declared environment preconditions
+# ---------------------------------------------------------------------------
+
+def run_env_preconditions(task: TaskCase, cwd: Path) -> bool:
+    """Run each declared env precondition (an argv that must exit 0) before the k runs. Any non-zero
+    exit or launch error means the registered environment is not ready → the caller marks the env
+    unstable so the verdict is ENV_UNSTABLE (§3.1 rule 1), never KILL. Zero LLM."""
+    for argv in task.env_preconditions:
+        cmd = list(argv)
+        if not cmd:
+            continue
+        if cmd[0] in ("python", "python3"):
+            cmd[0] = sys.executable
+        try:
+            proc = subprocess.run(cmd, cwd=str(cwd), capture_output=True, text=True, timeout=120)
+        except (OSError, subprocess.SubprocessError):
+            return False
+        if proc.returncode != 0:
+            return False
+    return True
+
+
+# ---------------------------------------------------------------------------
 # suite execution
 # ---------------------------------------------------------------------------
 
@@ -344,6 +373,12 @@ def run_suite(tasks: list[TaskCase], repo_root: Path, traces_root: Path) -> Suit
     )
     data = SuiteRunData(env=EnvStatus())
     data.env.canary_pre_ok = run_canary(repo_root, traces_root, fault=fault)
+    # A1 (D-040): a failed declared precondition is an environment fault → ENV_UNSTABLE, never KILL.
+    if data.env.canary_pre_ok:
+        for task in tasks:
+            if task.env_preconditions and not run_env_preconditions(task, repo_root):
+                data.env.canary_pre_ok = False
+                break
     for task in tasks:
         data.tasks[task.task_id] = task
         data.results[task.task_id] = run_task(task, repo_root, traces_root)

@@ -6,7 +6,7 @@ branch, tampering included). Pure stdlib, deterministic, no agent re-runs.
 
 What changes: only the *computed* verifier_ok / verifier_checks columns of results.json. The raw
 evidence (traces, modified_files, agent claims, checker pass/fail) is untouched. The ruler
-(gauntlet/checker.py) is NOT modified — this corrects an over-strict assumption in the
+(probity/checker.py) is NOT modified — this corrects an over-strict assumption in the
 experiment-side independent verifier only.
 
 The ruler's recorded per-run flags are reconstructed from the persisted facts plus the old

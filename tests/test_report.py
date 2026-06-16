@@ -2,10 +2,10 @@
 import re
 from pathlib import Path
 
-from gauntlet import HARNESS_VERSION
-from gauntlet.report import render_markdown
-from gauntlet.types import EnvStatus
-from gauntlet.verdict import build_audit_report, decide
+from probity import HARNESS_VERSION
+from probity.report import render_markdown
+from probity.types import EnvStatus
+from probity.verdict import build_audit_report, decide
 
 from tests.test_verdict import ENV_OK, _runs, _task
 
@@ -76,7 +76,7 @@ def test_kill_edge_display_clamp_below_threshold():
     """#4b: raw Wilson upper bound is below r, but 4dp rounding would display it AT/above r. The
     verdict must still KILL on the RAW value, and the DISPLAYED upper bound must be clamped below r
     so the report cannot contradict the KILL banner. Reporting-only; raw CI/verdict unchanged."""
-    from gauntlet.stats import wilson_ci
+    from probity.stats import wilson_ci
     _lo, raw_hi = wilson_ci(1, 10)
     r = round(raw_hi, 4)              # 0.4042 — 4dp rounding goes UP across r
     assert raw_hi < r                # precondition: the edge actually rounds up
@@ -89,7 +89,7 @@ def test_kill_edge_display_clamp_below_threshold():
 
 def test_reproduce_contains_exact_command():
     md, _ = _render()
-    assert "python -m gauntlet run tasks/example.json" in md
+    assert "python -m probity run tasks/example.json" in md
 
 
 def test_render_without_runs_falls_back():

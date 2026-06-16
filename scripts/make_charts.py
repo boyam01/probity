@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Generate committable SVG 'ruler value-add' charts from an experiment results.json.
 
-Per session: naive single-run impression (run #1 passed = 100%, failed = 0%) vs gauntlet-audited
+Per session: naive single-run impression (run #1 passed = 100%, failed = 0%) vs probity-audited
 reliability (p_hat). The chart's subject is the RULER's correction, shown in run order — it is
 NOT a quality ranking (§A4.2; Owner-approved amendment D-036). Pure stdlib; hand-emitted SVG so
 it renders on GitHub with no dependency.
@@ -30,7 +30,7 @@ def build(records, title):
     out = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" font-family="system-ui,Segoe UI,sans-serif">']
     out.append(f'<rect width="{W}" height="{H}" fill="#ffffff"/>')
     out.append(f'<text x="{ml}" y="28" font-size="16" font-weight="500" fill="{INK}">{esc(title)}</text>')
-    out.append(f'<text x="{ml}" y="46" font-size="11" fill="{MUTE}">naive single-run (amber) vs gauntlet-audited reliability over k=10 (teal). Run order; not a model ranking.</text>')
+    out.append(f'<text x="{ml}" y="46" font-size="11" fill="{MUTE}">naive single-run (amber) vs probity-audited reliability over k=10 (teal). Run order; not a model ranking.</text>')
     for pct in (0, 25, 50, 75, 100):
         y = mt + ph - ph * pct / 100
         out.append(f'<line x1="{ml}" y1="{y:.1f}" x2="{W-mr}" y2="{y:.1f}" stroke="{GRID}" stroke-width="0.5"/>')

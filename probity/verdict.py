@@ -8,9 +8,9 @@ import hashlib
 import re
 from pathlib import Path
 
-from gauntlet.cluster import failure_clusters
-from gauntlet.stats import k_needed_estimate, mean_cv, pass_hat_k, pass_k_lower, wilson_ci
-from gauntlet.types import (
+from probity.cluster import failure_clusters
+from probity.stats import k_needed_estimate, mean_cv, pass_hat_k, pass_k_lower, wilson_ci
+from probity.types import (
     AuditReport,
     CriticalEventRecord,
     EnvStatus,

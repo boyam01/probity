@@ -54,6 +54,11 @@ Probity 只回答一個很窄的問題:你的 coding agent 回報 **「done」**
 token,宣稱即為 `null`,永遠不算作 false claim。這個「說謊」訊號,單純就是 *agent
 自己陳述的結果 vs 確定性 checker 的結果*——沒有任何解讀步驟,裁決迴路裡沒有模型。
 
+> **已知缺口(roadmap)。** 一個 agent 只要**不輸出** `CLAIM:` token,就會被記為
+> `null` 而非 false claim——所以目前抓得到會自我回報的 agent,抓不到保持沉默的。
+> 一個把缺漏宣稱視為不合規(至少 INSUFFICIENT)的 `MISSING_CLAIM_CONTRACT` reason
+> code 提案見 [docs/ROADMAP.md](docs/ROADMAP.md)。
+
 ## 適合誰使用
 
 已經在承受 false green 之苦的人:
@@ -95,10 +100,15 @@ false green 出——請確認你的 checker 有牙齒(例如用 mutation testin
 
 **隔離與獨立性。** 每次執行使用一個全新的 git worktree,它隔離的是**工作區**——
 **不是** OS。一個對抗性的 agent 仍能觸及 worktree 之外的全域狀態:home 目錄設定、
-套件/工具 cache、`PATH`/toolchain shim、temp 目錄、長駐服務,或網路。worktree
-不是 sandbox。獨立性同時也是 Wilson interval 的一個統計假設:在極低 temperature 下,
+套件/工具 cache、`PATH`/toolchain shim、temp 目錄、長駐服務,或網路——所以一個會改動
+**共享外部狀態**(資料庫、真實訊息、全域檔案)的任務會破壞 Wilson interval 假設的獨立性,
+請 mock 或 stub 這些依賴。worktree 不是 sandbox。獨立性同時也是 Wilson interval 的一個統計假設:在極低 temperature 下,
 `k` 次執行可能塌縮成幾乎相同的輸出,於是**有效**樣本數遠小於 `k`,區間會高估信心。
 請變動 seed/temperature,並對低變異的執行集合保持懷疑。
+
+**定位。** Probity *審計已註冊的證據*;它**不是**用來安全執行惡意 agent 的對抗式
+sandbox。容器化隔離、關閉網路的執行、唯讀 oracle mount 都在
+[roadmap](docs/ROADMAP.md) 上,而非今天的保證。
 
 ## 成本與 CI 現實
 
@@ -136,9 +146,9 @@ docker run --rm probity test
 
 ```bash
 python -m pip install pytest
-python -m gauntlet run demo/patchbot/task_demo_patchbot_01.json --once --seed 1
-python -m gauntlet run demo/patchbot/task_demo_patchbot_01.json
-python -m gauntlet calibrate
+python -m probity run demo/patchbot/task_demo_patchbot_01.json --once --seed 1
+python -m probity run demo/patchbot/task_demo_patchbot_01.json
+python -m probity calibrate
 python -m pytest -q
 ```
 
@@ -153,7 +163,8 @@ python -m pytest -q
 只要你的任務有確定性 checker,Probity 就能運作:`pytest`、`cargo test`、compiler、
 schema validator、script oracle,或 state-file check。
 
-建立一個 `task_case.json`,包含:
+用 `python -m probity init`(零-LLM 模板——它不會分析你的 repo)產生起始檔,再填好一個
+`task_case.json`,包含:
 
 - workspace 或 fixture repo;
 - `agent.adapter = "subprocess"` 下的 agent 命令;
@@ -164,7 +175,7 @@ schema validator、script oracle,或 state-file check。
 然後執行:
 
 ```bash
-python -m gauntlet run path/to/task_case.json
+python -m probity run path/to/task_case.json
 ```
 
 使用 Docker:
@@ -208,6 +219,11 @@ evidence-research 任務。
 這個 repo 提供:具有已知 ground truth 的 controlled calibration、不需 API key 的
 可重現 demo、Docker 與本機 Python 入口、task-schema 範例,以及方法論與公開主張邊界。
 
+三個可重現的微縮案例把失敗模式具體化,全部確定性、不需金鑰:`demo`(一次看似成功、
+被 `k` 次重複試驗推翻)、calibration 案例 `cal_U4`(agent 改了受保護 oracle 路徑 →
+`KILL · AUDIT_INTEGRITY`),以及 `cal_U1`(agent 反覆宣稱成功但 checker 持續為紅 →
+`RELIABILITY_REFUTED` 並帶 `FALSE_CLAIM_PATTERN` 診斷)。
+
 這些證據支持一個很窄的主張:Probity 能在有確定性 checker 的註冊任務中,揭露
 false-green 與 unsupported-success 模式。它不證明任意 agent 的正確性,不偵測所有幻覺,
 也不為模型排名。calibration 集合是對決策邏輯的 controlled ground-truth 檢查(小而固定的
@@ -227,15 +243,26 @@ Probity 位於 agent evaluation、agent regression testing 與 false-completion 
 ```bash
 python -m pip install pytest
 python -m pytest -q
-python -m gauntlet calibrate
+python -m probity calibrate
 ```
 
-核心約束:內建 verdict 路徑維持 zero-LLM;`gauntlet/` runtime 維持 Python 標準庫加
+核心約束:內建 verdict 路徑維持 zero-LLM;`probity/` runtime 維持 Python 標準庫加
 系統 `git`;schema/verdict/checker contract 位於
 [INTERFACE_CONTRACT.md](INTERFACE_CONTRACT.md);calibration 必須維持 10/10 且零
 per-case patch。
 
-## 發佈狀態
+## 專案狀態
 
-這個 repo 已為公開回饋做好準備,但公開發佈、repo visibility 變更、GitHub organization
-變更與套件發佈,仍需 Owner 明確批准。發佈檢查表:[docs/PUBLICATION_PREP.md](docs/PUBLICATION_PREP.md)。
+Probity 已**公開並開放回饋**,採 [MIT 授權](LICENSE)。這是早期(v0.1)版本:verdict
+引擎、calibration(10/10)與 demo 都已凍結且全綠,但產品表面仍在成熟中。哪些是
+**刻意延後**的——claim-contract 強化、oracle 完整性模式、報告/CLI branding pass——見
+[docs/ROADMAP.md](docs/ROADMAP.md)。
+
+無論可見性如何都維持的紀律:公開樹只出貨工具、範例與方法論/使用文件——私有研究報告、
+raw trace 與模型 session log 留在 source repository,由 export 邊界把關
+([docs/PUBLICATION_PREP.md](docs/PUBLICATION_PREP.md)、`scripts/audit_public_release.py`)。
+Probity 不主張對任何套件登錄處的 `probity` 名稱擁有所有權。
+
+## 授權
+
+[MIT](LICENSE)。

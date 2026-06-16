@@ -2,9 +2,9 @@
 import json
 from pathlib import Path
 
-from gauntlet.runner import make_adapter, run_one, run_suite, WorkspaceSource
-from gauntlet.types import TaskCase
-from gauntlet.verdict import decide
+from probity.runner import make_adapter, run_one, run_suite, WorkspaceSource
+from probity.types import TaskCase
+from probity.verdict import decide
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEMO_TASK = REPO_ROOT / "demo" / "patchbot" / "task_demo_patchbot_01.json"

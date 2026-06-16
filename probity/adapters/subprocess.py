@@ -22,8 +22,8 @@ import time
 from pathlib import Path
 from typing import Any
 
-from gauntlet.adapters.base import Adapter, AgentRunOutcome, AgentTimeout, AgentToolError
-from gauntlet.types import TaskCase, TokenUsage, Trace
+from probity.adapters.base import Adapter, AgentRunOutcome, AgentTimeout, AgentToolError
+from probity.types import TaskCase, TokenUsage, Trace
 
 
 class SubprocessAgent(Adapter):
@@ -39,7 +39,7 @@ class SubprocessAgent(Adapter):
     def run(self, workspace: Path, task: TaskCase, seed: int) -> AgentRunOutcome:
         prompt_file: str | None = None
         if any("{prompt_file}" in a for a in self.behavior["cmd"]):
-            fd, prompt_file = tempfile.mkstemp(prefix="gauntlet_prompt_", suffix=".txt", text=True)
+            fd, prompt_file = tempfile.mkstemp(prefix="probity_prompt_", suffix=".txt", text=True)
             with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
                 f.write(task.agent_input.prompt)
         subs = {

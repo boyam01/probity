@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from gauntlet.runner import run_task
-from gauntlet.types import (
+from probity.runner import run_task
+from probity.types import (
     AgentInput,
     AgentSpec,
     CheckerSpec,
@@ -20,7 +20,7 @@ from gauntlet.types import (
     TaskCase,
     WorkspaceSpec,
 )
-from gauntlet.verdict import decide
+from probity.verdict import decide
 
 REPO = Path(__file__).resolve().parent.parent
 FIXTURE = "tasks/semver/fixtures/minirepo_semver"

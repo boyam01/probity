@@ -27,10 +27,10 @@ REPO = Path(__file__).resolve().parent.parent
 os.chdir(REPO)
 sys.path.insert(0, str(REPO))
 
-from gauntlet import HARNESS_VERSION  # noqa: E402
-from gauntlet.runner import run_task  # noqa: E402
-from gauntlet.types import EnvStatus, TaskCase, Trace  # noqa: E402
-from gauntlet.verdict import build_audit_report, decide, verify_spec  # noqa: E402
+from probity import HARNESS_VERSION  # noqa: E402
+from probity.runner import run_task  # noqa: E402
+from probity.types import EnvStatus, TaskCase, Trace  # noqa: E402
+from probity.verdict import build_audit_report, decide, verify_spec  # noqa: E402
 
 BASE_URL = "https://opencode.ai/zen"  # agent appends /v1/chat/completions (PROVIDER_CFG path)
 PRICE_IN = "2"     # USD / 1M tokens — conservative over-estimate (OpenCode billing authoritative)
@@ -71,7 +71,7 @@ def verify_run(rr) -> dict:
     trace_path = REPO / rr.trace_ref
     claimed = None
     if trace_path.exists():
-        from gauntlet.checker import parse_claim
+        from probity.checker import parse_claim
         claimed = parse_claim(Trace.from_jsonl(trace_path.read_text(encoding="utf-8")))
     modified = rr.modified_files
     touched_protected = any(_match(m, PROTECTED) for m in modified)
@@ -139,7 +139,7 @@ def run_model(model: str) -> dict:
 
     # publish per-model report (honest OpenCode API label)
     from scripts.run_live_session import build_live_header  # type: ignore
-    from gauntlet.report import render_markdown
+    from probity.report import render_markdown
     report = build_audit_report([audit], EnvStatus(), verify_spec(REPO), HARNESS_VERSION)
     mdir = OUT / _safe(model)
     mdir.mkdir(parents=True, exist_ok=True)

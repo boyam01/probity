@@ -40,27 +40,27 @@ def main(argv: list[str]) -> int:
         print(HELP)
         return 0
     if cmd == "demo-once":
-        return _run([sys.executable, "-m", "gauntlet", "run", DEMO_TASK, "--once", "--seed", "1"])
+        return _run([sys.executable, "-m", "probity", "run", DEMO_TASK, "--once", "--seed", "1"])
     if cmd == "demo":
-        code = _run([sys.executable, "-m", "gauntlet", "run", DEMO_TASK])
+        code = _run([sys.executable, "-m", "probity", "run", DEMO_TASK])
         if code == 1:
             print("\nDocker demo note: KILL is the expected demo verdict, so this wrapper exits 0.")
             return 0
         return code
     if cmd == "calibrate":
-        return _run([sys.executable, "-m", "gauntlet", "calibrate"])
+        return _run([sys.executable, "-m", "probity", "calibrate"])
     if cmd == "test":
         return _run([sys.executable, "-m", "pytest", "-q"])
     if cmd == "run":
         if not rest:
-            print("usage: docker run --rm probity run <task_case.json> [gauntlet args...]", file=sys.stderr)
+            print("usage: docker run --rm probity run <task_case.json> [probity args...]", file=sys.stderr)
             return 2
-        return _run([sys.executable, "-m", "gauntlet", "run", *rest])
+        return _run([sys.executable, "-m", "probity", "run", *rest])
     if cmd == "report":
         if not rest:
             print("usage: docker run --rm probity report <audit_report.json>", file=sys.stderr)
             return 2
-        return _run([sys.executable, "-m", "gauntlet", "report", *rest])
+        return _run([sys.executable, "-m", "probity", "report", *rest])
     if cmd == "shell":
         return _run(["/bin/sh", *rest])
 

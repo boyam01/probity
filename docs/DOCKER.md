@@ -75,7 +75,7 @@ There are two practical options:
 If your agent is installed on the host, run Probity on the host too:
 
 ```bash
-python -m gauntlet run path/to/task_case.json
+python -m probity run path/to/task_case.json
 ```
 
 This lets `agent.behavior.cmd` call tools already installed on your machine.

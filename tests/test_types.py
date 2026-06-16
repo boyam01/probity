@@ -1,7 +1,7 @@
 """Phase 0: JSON round-trip tests against the frozen §2 schema examples."""
 import json
 
-from gauntlet.types import AuditReport, RunResult, TaskCase, Trace
+from probity.types import AuditReport, RunResult, TaskCase, Trace
 
 TASK_CASE_EXAMPLE = {
     "task_id": "demo_patchbot_01",

@@ -7,11 +7,12 @@ from __future__ import annotations
 
 import fnmatch
 import importlib.util
+import os
 import subprocess
 import sys
 from pathlib import Path
 
-from gauntlet.types import (
+from probity.types import (
     CheckResult,
     CriticalEventRecord,
     CriticalRule,
@@ -141,6 +142,24 @@ def parse_claim(trace: Trace) -> bool | None:
 CHECKER_TIMEOUT_S = 600  # checker-subprocess hard cap: a hung test fails rather than hanging the auditor (finding #6a)
 
 
+def _memory_preexec(max_memory_mb: int | None):
+    """A2 (D-040): cap the checker subprocess address space so a runaway / OOM agent-produced
+    program FAILS the check instead of passing on unasserted resource use. POSIX-only
+    (``RLIMIT_AS``); a no-op on non-POSIX platforms (best-effort, documented in ROADMAP)."""
+    if not max_memory_mb or os.name != "posix":
+        return None
+    try:
+        import resource
+    except ImportError:
+        return None
+    limit = int(max_memory_mb) * 1024 * 1024
+
+    def _apply() -> None:
+        resource.setrlimit(resource.RLIMIT_AS, (limit, limit))
+
+    return _apply
+
+
 def run_pytest(workspace: Path, cmd: list[str]) -> bool:
     """§4.2: subprocess execution, returncode == 0 passes."""
     passed, _ = run_pytest_detail(workspace, cmd)
@@ -148,20 +167,29 @@ def run_pytest(workspace: Path, cmd: list[str]) -> bool:
 
 
 def run_pytest_detail(
-    workspace: Path, cmd: list[str], timeout: float = CHECKER_TIMEOUT_S
+    workspace: Path,
+    cmd: list[str],
+    timeout: float = CHECKER_TIMEOUT_S,
+    max_memory_mb: int | None = None,
 ) -> tuple[bool, str]:
     """run_pytest plus a short summary string for checker_output.detail.
 
     The pass/fail decision depends ONLY on the returncode; the summary text is
     informational and tolerant of output-format drift. A hung test command is bounded by
     ``timeout`` and scored as a (non-passing) failure rather than hanging the auditor (finding #6a).
+    ``max_memory_mb`` caps the subprocess address space on POSIX (A2, D-040).
     """
     argv = list(cmd)
     if argv and argv[0] in ("python", "python3"):
         argv[0] = sys.executable  # same interpreter that runs the harness (D-008)
+    run_kwargs: dict = {}
+    preexec = _memory_preexec(max_memory_mb)
+    if preexec is not None:
+        run_kwargs["preexec_fn"] = preexec
     try:
         proc = subprocess.run(
-            argv, cwd=workspace, capture_output=True, text=True, check=False, timeout=timeout
+            argv, cwd=workspace, capture_output=True, text=True, check=False,
+            timeout=timeout, **run_kwargs,
         )
     except subprocess.TimeoutExpired:
         return False, f"checker timeout after {timeout}s"
@@ -195,7 +223,7 @@ def _evaluate_script(workspace: Path, trace: Trace, task: TaskCase) -> tuple[boo
     module_path = Path(task.checker.module or "")
     if not module_path.is_absolute():
         module_path = Path.cwd() / module_path
-    spec = importlib.util.spec_from_file_location("gauntlet_custom_checker", module_path)
+    spec = importlib.util.spec_from_file_location("probity_custom_checker", module_path)
     if spec is None or spec.loader is None:
         return False, f"checker module not loadable: {task.checker.module}"
     mod = importlib.util.module_from_spec(spec)
@@ -216,7 +244,8 @@ def _evaluate_script(workspace: Path, trace: Trace, task: TaskCase) -> tuple[boo
 def _evaluate(workspace: Path, trace: Trace, task: TaskCase) -> tuple[bool, str]:
     spec = task.checker
     if spec.type == "pytest":
-        return run_pytest_detail(workspace, spec.cmd)
+        timeout = spec.timeout_s if spec.timeout_s is not None else CHECKER_TIMEOUT_S
+        return run_pytest_detail(workspace, spec.cmd, timeout=timeout, max_memory_mb=spec.max_memory_mb)
     if spec.type == "state_file":
         return _evaluate_state_file(workspace, spec.state_file or "state.json", spec.expected_content or "")
     if spec.type == "script":

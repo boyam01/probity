@@ -6,14 +6,14 @@ test:
 	$(PY) -m pytest -q
 
 calibrate:
-	$(PY) -m gauntlet calibrate
+	$(PY) -m probity calibrate
 
 # `make demo` is EXPECTED to end in a KILL verdict (exit code 1) — that is the demo.
 demo:
-	-$(PY) -m gauntlet run demo/patchbot/task_demo_patchbot_01.json
+	-$(PY) -m probity run demo/patchbot/task_demo_patchbot_01.json
 
 demo-once:
-	$(PY) -m gauntlet run demo/patchbot/task_demo_patchbot_01.json --once --seed 1
+	$(PY) -m probity run demo/patchbot/task_demo_patchbot_01.json --once --seed 1
 
 claim-audit:
 	$(PY) scripts/audit_public_claims.py

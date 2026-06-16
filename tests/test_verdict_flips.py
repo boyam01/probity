@@ -11,9 +11,9 @@ from pathlib import Path
 
 import pytest
 
-from gauntlet.runner import run_suite
-from gauntlet.types import TaskCase
-from gauntlet.verdict import decide
+from probity.runner import run_suite
+from probity.types import TaskCase
+from probity.verdict import decide
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 CAL_DIR = REPO_ROOT / "tasks" / "calibration_v1"

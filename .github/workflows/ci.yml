@@ -8,11 +8,15 @@ on:
 jobs:
   pytest:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.13"
+          python-version: ${{ matrix.python-version }}
       - run: python -m pip install pytest
       - run: python -m pytest -q
 
@@ -24,7 +28,7 @@ jobs:
         with:
           python-version: "3.13"
       - run: python -m pip install pytest
-      - run: python -m gauntlet calibrate
+      - run: python -m probity calibrate
 
   demo:
     runs-on: ubuntu-latest
@@ -35,13 +39,24 @@ jobs:
           python-version: "3.13"
       - run: python -m pip install pytest
       - name: demo-once (single success, naive conclusion)
-        run: python -m gauntlet run demo/patchbot/task_demo_patchbot_01.json --once --seed 1
-      - name: full gauntlet (KILL verdict expected, exit code 1)
+        run: python -m probity run demo/patchbot/task_demo_patchbot_01.json --once --seed 1
+      - name: full probity (KILL verdict expected, exit code 1)
         run: |
           set +e
-          python -m gauntlet run demo/patchbot/task_demo_patchbot_01.json
+          python -m probity run demo/patchbot/task_demo_patchbot_01.json
           code=$?
           set -e
           test "$code" -eq 1
           grep -q "RELIABILITY_REFUTED" reports/demo_patchbot_01_GAUNTLET_REPORT.md
           grep -q "▮▮▯▮▮▯▮▯▮▮" reports/demo_patchbot_01_GAUNTLET_REPORT.md
+
+  docker-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: build image
+        run: docker build -t probity .
+      - name: demo-once
+        run: docker run --rm probity demo-once
+      - name: calibrate
+        run: docker run --rm probity calibrate

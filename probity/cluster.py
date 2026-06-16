@@ -1,7 +1,7 @@
 """Failure clustering — pure rule-based counting by failure_class. Zero LLM."""
 from __future__ import annotations
 
-from gauntlet.types import FailureCluster, RunResult
+from probity.types import FailureCluster, RunResult
 
 
 def failure_clusters(results: list[RunResult]) -> list[FailureCluster]:

@@ -1,4 +1,4 @@
-"""CLI: python -m gauntlet run|calibrate|report. Zero LLM; reports are template-only."""
+"""CLI: python -m probity run|calibrate|report. Zero LLM; reports are template-only."""
 from __future__ import annotations
 
 import argparse
@@ -6,10 +6,18 @@ import json
 import sys
 from pathlib import Path
 
-from gauntlet import HARNESS_VERSION
-from gauntlet.runner import TaskRejected, WorkspaceSource, make_adapter, run_one, run_suite
-from gauntlet.types import TaskCase
-from gauntlet.verdict import (
+from probity import HARNESS_VERSION
+from probity.runner import TaskRejected, WorkspaceSource, make_adapter, run_one, run_suite
+from probity.types import (
+    AgentInput,
+    AgentSpec,
+    CheckerSpec,
+    CriticalRule,
+    SamplingSpec,
+    TaskCase,
+    WorkspaceSpec,
+)
+from probity.verdict import (
     CalibrationDrift,
     SpecDrift,
     build_audit_report,
@@ -144,7 +152,7 @@ def cmd_run(args: argparse.Namespace) -> int:
     json_path = out_dir / f"{task.task_id}_audit.json"
     json_path.write_text(report.to_json() + "\n", encoding="utf-8", newline="\n")
 
-    from gauntlet.report import render_markdown
+    from probity.report import render_markdown
 
     md = render_markdown(
         report,
@@ -166,11 +174,78 @@ def cmd_run(args: argparse.Namespace) -> int:
 # ---------------------------------------------------------------------------
 
 def cmd_report(args: argparse.Namespace) -> int:
-    from gauntlet.report import render_markdown
-    from gauntlet.types import AuditReport
+    from probity.report import render_markdown
+    from probity.types import AuditReport
 
     report = AuditReport.from_json(Path(args.audit_json).read_text(encoding="utf-8"))
     print(render_markdown(report, {}, {}))
+    return 0
+
+
+# ---------------------------------------------------------------------------
+# init (scaffold a task_case.json template; zero-LLM, no repo analysis)
+# ---------------------------------------------------------------------------
+
+def _template_task() -> TaskCase:
+    return TaskCase(
+        task_id="my_task_01",
+        suite="local",
+        description="Describe the task and the boundary the agent must respect.",
+        workspace=WorkspaceSpec(type="git", path="path/to/your/repo", pristine_ref="HEAD"),
+        agent_input=AgentInput(
+            prompt=(
+                "Tell the agent what to do. Its LAST line must be "
+                "`CLAIM: success` or `CLAIM: failure`."
+            ),
+            env={},
+        ),
+        checker=CheckerSpec(
+            type="pytest",
+            cmd=["python", "-m", "pytest", "-q"],
+            allowed_paths=["src/**"],
+            protected_paths=["tests/**"],
+            critical_rules=[CriticalRule(type="deleted_path", glob="**")],
+        ),
+        required_reliability=0.90,
+        criticality="standard",
+        k_planned=10,
+        sampling=SamplingSpec(seed_policy="incremental", temperature=None),
+        agent=AgentSpec(
+            adapter="subprocess",
+            agent_id="your-agent-v1",
+            behavior={
+                "cmd": ["your-agent-cli", "--prompt-file", "{prompt_file}"],
+                "timeout_s": 600,
+            },
+        ),
+    )
+
+
+_INIT_GUIDE = """\
+Wrote a starter task_case.json template: {path}
+
+This is a zero-LLM scaffold — it does not analyze your repo. Fill in:
+  - workspace.path                   : the repo or fixture the agent edits
+  - agent.behavior.cmd               : your agent CLI ({{prompt_file}} {{workspace}} {{seed}} are substituted)
+  - agent_input.prompt               : the instruction; the agent's LAST line must be CLAIM: success|failure
+  - checker                          : how "done" is verified (pytest | script | state_file)
+  - allowed_paths / protected_paths  : the edit scope and the oracle files to protect
+  - required_reliability / k_planned : your reliability bar and trial count
+
+Then run:
+  python -m probity run {path}
+
+Schema reference: INTERFACE_CONTRACT.md (§2).
+"""
+
+
+def cmd_init(args: argparse.Namespace) -> int:
+    out = Path(args.path)
+    if out.exists() and not args.force:
+        print(f"REFUSING: {out} already exists (use --force to overwrite)")
+        return 2
+    out.write_text(_template_task().to_json() + "\n", encoding="utf-8", newline="\n")
+    print(_INIT_GUIDE.format(path=out.as_posix()))
     return 0
 
 
@@ -178,7 +253,7 @@ def main(argv: list[str] | None = None) -> int:
     # Windows consoles may default to a legacy codepage; reports use ▮▯✓ etc.
     if hasattr(sys.stdout, "reconfigure"):
         sys.stdout.reconfigure(encoding="utf-8", errors="replace")
-    parser = argparse.ArgumentParser(prog="gauntlet", description="AGENT-GAUNTLET v0.1")
+    parser = argparse.ArgumentParser(prog="probity", description="Probity v0.1 — falsification-first integrity gate for coding agents")
     sub = parser.add_subparsers(dest="command", required=True)
 
     p_run = sub.add_parser("run", help="run a task k times and emit the audit verdict")
@@ -194,6 +269,11 @@ def main(argv: list[str] | None = None) -> int:
     p_rep = sub.add_parser("report", help="re-render markdown from audit_report.json")
     p_rep.add_argument("audit_json")
     p_rep.set_defaults(func=cmd_report)
+
+    p_init = sub.add_parser("init", help="scaffold a starter task_case.json template")
+    p_init.add_argument("path", nargs="?", default="task_case.json", help="output path")
+    p_init.add_argument("--force", action="store_true", help="overwrite an existing file")
+    p_init.set_defaults(func=cmd_init)
 
     args = parser.parse_args(argv)
     try:

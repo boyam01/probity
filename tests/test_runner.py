@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pytest
 
-from gauntlet.adapters.scripted import ScriptedAgent
-from gauntlet.runner import (
+from probity.adapters.scripted import ScriptedAgent
+from probity.runner import (
     TaskRejected,
     make_adapter,
     run_canary,
@@ -13,7 +13,7 @@ from gauntlet.runner import (
     run_task,
     validate_task,
 )
-from gauntlet.types import (
+from probity.types import (
     AgentInput,
     AgentSpec,
     CheckerSpec,
@@ -273,7 +273,7 @@ def test_canary_infra_exception_returns_false_not_crash(tmp_path: Path, monkeypa
     (-> ENV_UNSTABLE per the verdict chain), not an uncaught exception that aborts the whole
     suite. The canary is an environment-health probe: if it cannot complete for any reason, the
     environment is unreliable. (Audit finding #1.)"""
-    import gauntlet.runner as R
+    import probity.runner as R
 
     def boom(*a, **k):
         raise RuntimeError("git/worktree exploded")

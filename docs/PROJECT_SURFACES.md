@@ -6,7 +6,7 @@ Probity has three different surfaces. Keep them separate.
 
 The source repository is the canonical working repo. It keeps:
 
-- core tool code under `gauntlet/`;
+- core tool code under `probity/`;
 - task schema and frozen interface docs;
 - calibration fixtures and demo fixtures;
 - governance and decision history;

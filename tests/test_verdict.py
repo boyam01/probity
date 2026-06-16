@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from gauntlet.cluster import failure_clusters
-from gauntlet.types import (
+from probity.cluster import failure_clusters
+from probity.types import (
     AgentInput,
     CheckerOutput,
     CheckerSpec,
@@ -16,7 +16,7 @@ from gauntlet.types import (
     TaskCase,
     WorkspaceSpec,
 )
-from gauntlet.verdict import (
+from probity.verdict import (
     SpecDrift,
     compute_spec_hash,
     decide,
@@ -329,7 +329,7 @@ def test_verify_spec_drift_raises(tmp_path: Path):
 def test_calibration_hash_changes_when_a_fixture_is_weakened(tmp_path: Path):
     """Editing a calibration fixture (e.g. weakening a case) must change the hash, so it can be
     caught as drift instead of passing as 10/10."""
-    from gauntlet.verdict import compute_calibration_hash
+    from probity.verdict import compute_calibration_hash
     cal = tmp_path / "tasks" / "calibration_v1"
     cal.mkdir(parents=True)
     (cal / "cal_R1.json").write_text('{"verdict": "PASS"}\n', encoding="utf-8")
@@ -339,7 +339,7 @@ def test_calibration_hash_changes_when_a_fixture_is_weakened(tmp_path: Path):
 
 
 def test_verify_calibration_drift_raises(tmp_path: Path):
-    from gauntlet.verdict import CalibrationDrift, verify_calibration
+    from probity.verdict import CalibrationDrift, verify_calibration
     cal = tmp_path / "tasks" / "calibration_v1"
     cal.mkdir(parents=True)
     (cal / "cal_R1.json").write_text('{"a": 1}\n', encoding="utf-8")
@@ -351,6 +351,6 @@ def test_verify_calibration_drift_raises(tmp_path: Path):
 
 
 def test_verify_calibration_ok_on_this_repo():
-    from gauntlet.verdict import verify_calibration
+    from probity.verdict import verify_calibration
     repo_root = Path(__file__).resolve().parent.parent
     assert verify_calibration(repo_root).startswith("sha256:")

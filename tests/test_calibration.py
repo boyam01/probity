@@ -5,7 +5,7 @@ subprocesses) — it is the slowest test in the suite, by design.
 """
 from pathlib import Path
 
-from gauntlet.cli import main
+from probity.cli import main
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 

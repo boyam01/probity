@@ -258,7 +258,7 @@ def _request(provider: str, payload: dict, api_key: str, base_url: str) -> urlli
     path = PROVIDER_CFG[provider]["path"]
     # Explicit User-Agent: many gateways (e.g. OpenCode) reject the default "Python-urllib/*"
     # with HTTP 403. Transport-level only — does not affect the measured prompt or parsing.
-    headers = {"Content-Type": "application/json", "User-Agent": "agent-gauntlet/0.1"}
+    headers = {"Content-Type": "application/json", "User-Agent": "probity/0.1"}
     if provider == "openai":
         headers["Authorization"] = f"Bearer {api_key}"
     else:

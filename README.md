@@ -61,6 +61,12 @@ never counts as a false claim. The "lie" signal is simply *the agent's own state
 outcome vs the deterministic checker's outcome* — no interpretation step, no model
 in the verdict loop.
 
+> **Known gap (roadmap).** An agent that simply omits the `CLAIM:` token is recorded
+> as `null`, not as a false claim — so today this catches agents that self-report a
+> result, not those that stay silent. A `MISSING_CLAIM_CONTRACT` reason code that
+> treats a missing claim as non-compliant (at least INSUFFICIENT) is proposed in
+> [docs/ROADMAP.md](docs/ROADMAP.md).
+
 ## Who This Is For
 
 People who already feel the pain of false greens:
@@ -106,12 +112,20 @@ your checker has teeth (for example with mutation testing).
 **Isolation and independence.** Each run uses a fresh git worktree, which isolates
 the *workspace* — **not** the OS. An adversarial agent can still reach global state
 outside the worktree: home-directory config, package/tool caches, `PATH`/toolchain
-shims, temp dirs, long-running services, or the network. A worktree is not a
-sandbox. Independence is also a statistical assumption the Wilson interval makes:
+shims, temp dirs, long-running services, or the network — so a task that mutates
+**shared external state** (a database, a real message, a global file) breaks the
+independence the Wilson interval assumes; mock or stub those dependencies. A worktree
+is not a sandbox. Independence is also a statistical assumption the Wilson interval makes:
 at very low temperature, `k` runs can collapse into near-identical outputs, so the
 *effective* sample size is far smaller than `k` and the interval overstates
 confidence. Vary the seed/temperature and treat a low-variance run set with
 suspicion.
+
+**Positioning.** The default scripted/subprocess path *audits registered evidence* and is
+**not** an adversarial sandbox. For stronger isolation an **opt-in `docker` adapter** runs
+each trial in a fresh, network-off container (per-run reset); optional `env_preconditions`
+and checker resource bounds (`timeout_s` / `max_memory_mb`) harden the env and oracle. The
+zero-dependency core never imports Docker. Details: [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## Cost and CI Reality
 
@@ -152,9 +166,9 @@ Local Python path:
 
 ```bash
 python -m pip install pytest
-python -m gauntlet run demo/patchbot/task_demo_patchbot_01.json --once --seed 1
-python -m gauntlet run demo/patchbot/task_demo_patchbot_01.json
-python -m gauntlet calibrate
+python -m probity run demo/patchbot/task_demo_patchbot_01.json --once --seed 1
+python -m probity run demo/patchbot/task_demo_patchbot_01.json
+python -m probity calibrate
 python -m pytest -q
 ```
 
@@ -169,7 +183,8 @@ surfaces: [docs/PROJECT_SURFACES.md](docs/PROJECT_SURFACES.md). Discoverability:
 Probity works when your task has a deterministic checker: `pytest`, `cargo test`,
 a compiler, a schema validator, a script oracle, or a state-file check.
 
-Create a `task_case.json` with:
+Scaffold a starter file with `python -m probity init` (a zero-LLM template — it does
+not analyze your repo), then fill in a `task_case.json` with:
 
 - a workspace or fixture repo;
 - an agent command under `agent.adapter = "subprocess"`;
@@ -180,7 +195,7 @@ Create a `task_case.json` with:
 Then run:
 
 ```bash
-python -m gauntlet run path/to/task_case.json
+python -m probity run path/to/task_case.json
 ```
 
 With Docker:
@@ -227,6 +242,12 @@ This repository ships controlled calibration with known ground truth, reproducib
 demos that need no API keys, Docker and local Python entrypoints, task-schema
 examples, and the methodology and public-claim boundaries.
 
+Three reproducible miniatures make the failure modes concrete — all deterministic and
+key-free: the `demo` (a one-shot green that `k` repeated trials refute), calibration
+case `cal_U4` (an agent that edits a protected oracle path → `KILL · AUDIT_INTEGRITY`),
+and `cal_U1` (an agent that keeps claiming success while the checker stays red →
+`RELIABILITY_REFUTED` with a `FALSE_CLAIM_PATTERN` diagnostic).
+
 The evidence supports a narrow claim: Probity can expose false-green and
 unsupported-success patterns in registered tasks with deterministic checkers. It
 does not prove arbitrary agent correctness, does not detect all hallucinations, and
@@ -249,16 +270,28 @@ infrastructure. See [docs/RELATED_WORK.md](docs/RELATED_WORK.md).
 ```bash
 python -m pip install pytest
 python -m pytest -q
-python -m gauntlet calibrate
+python -m probity calibrate
 ```
 
-Core constraints: the built-in verdict path stays zero-LLM; `gauntlet/` runtime
+Core constraints: the built-in verdict path stays zero-LLM; `probity/` runtime
 stays Python stdlib plus system `git`; the schema/verdict/checker contract lives in
 [INTERFACE_CONTRACT.md](INTERFACE_CONTRACT.md); calibration must stay 10/10 with
 zero per-case patches.
 
-## Publication Status
+## Project Status
 
-This repo is prepared for public feedback, but public release, repo visibility
-changes, GitHub organization changes, and package publication still require
-explicit Owner approval. Launch checklist: [docs/PUBLICATION_PREP.md](docs/PUBLICATION_PREP.md).
+Probity is **public and open for feedback** under the [MIT License](LICENSE). This is
+an early (v0.1) release: the verdict engine, calibration (10/10), and demos are frozen
+and green, while the product surface is still maturing. See
+[docs/ROADMAP.md](docs/ROADMAP.md) for what is deliberately deferred — claim-contract
+hardening, oracle-integrity modes, and a report/CLI branding pass.
+
+What stays disciplined regardless of visibility: the public tree ships the tool,
+examples, and methodology/usage docs only — private research reports, raw traces, and
+model-session logs stay in the source repository, enforced by the export boundary
+([docs/PUBLICATION_PREP.md](docs/PUBLICATION_PREP.md), `scripts/audit_public_release.py`).
+Probity claims no ownership of the `probity` name on any package registry.
+
+## License
+
+[MIT](LICENSE).

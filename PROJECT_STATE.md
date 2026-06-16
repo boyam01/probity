@@ -10,7 +10,7 @@ calibration_hash: sha256:2f2d41d053e392aa53f676be4066b30b24f797d065d4bad3f738535
 - 計算方式：`EVAL_SPEC.md` 位元組內容，換行正規化（`\r\n` / `\r` → `\n`）後的 sha256。
 - 正規化理由：跨平台 clone（autocrlf）不得造成假性 SPEC_DRIFT。
 - `calibration_hash`（D-038 / finding #2）：`tasks/calibration_v1/*.json`(10 校準案例 + expected.json)
-  名稱分隔 + 換行正規化後的 sha256。`gauntlet calibrate` 啟動時驗證；不符 → 拒跑 `CALIBRATION_DRIFT`。
+  名稱分隔 + 換行正規化後的 sha256。`probity calibrate` 啟動時驗證；不符 → 拒跑 `CALIBRATION_DRIFT`。
   目的:防止有人默默弱化某個校準案例(同時改 cal_X.json 與 expected.json)而不被偵測。與 spec_hash
   分離,故已發佈報告內嵌的 spec_hash provenance 不受影響。
 - **Provenance policy（owner-controlled）**：`calibration_hash`、校準 fixtures、以及 `spec_hash` 都是
@@ -66,14 +66,14 @@ anthropic `3e563db1c2124e34c68e3ef3ece26b949e4efcfe7b3a162dc53cc8d40c30e7a4`。
 ## 環境
 
 - 開發直譯器：Python 3.13（`py -3.13`），pytest 9.0.3。
-- Repo root：`D:\GAUNTLET_ruler`（= 規格中的 `agent-gauntlet/`，見 DECISION_LOG D-001）。
+- Repo root：`D:\probity`（= 規格中的 `probity/`，見 DECISION_LOG D-001）。
 - 測試指令：`py -3.13 -m pytest -q`。
 
 ## 已交付
 
 - Governance：CLAUDE.md / INTERFACE_CONTRACT.md / EVAL_SPEC.md（已定稿，hash 如上）/
   DECISION_LOG.md / REFERENCES.md / README.md（完整版）/ Makefile / pyproject.toml。
-- `gauntlet/`：types / stats / checker / runner / verdict / cluster / report / cli +
+- `probity/`：types / stats / checker / runner / verdict / cluster / report / cli +
   adapters（scripted、subprocess）。
 - `tasks/calibration_v1/`：10 案例 + fixtures（minirepo、abstract_ws）+ expected.json。
 - `demo/patchbot/`：minirepo + task json + 10 條預錄 traces。

@@ -83,6 +83,10 @@ class CheckerSpec:
     state_file: str | None = None
     expected_content: str | None = None
     module: str | None = None
+    # A2 (D-040): optional resource bounds on the checker subprocess. timeout_s is cross-platform;
+    # max_memory_mb is enforced on POSIX (RLIMIT_AS) and best-effort (ignored) elsewhere.
+    timeout_s: float | None = None
+    max_memory_mb: int | None = None
 
     def to_dict(self) -> dict[str, Any]:
         d: dict[str, Any] = {
@@ -98,6 +102,10 @@ class CheckerSpec:
             d["expected_content"] = self.expected_content
         if self.module is not None:
             d["module"] = self.module
+        if self.timeout_s is not None:
+            d["timeout_s"] = self.timeout_s
+        if self.max_memory_mb is not None:
+            d["max_memory_mb"] = self.max_memory_mb
         return d
 
     @classmethod
@@ -111,6 +119,8 @@ class CheckerSpec:
             state_file=d.get("state_file"),
             expected_content=d.get("expected_content"),
             module=d.get("module"),
+            timeout_s=d.get("timeout_s"),
+            max_memory_mb=d.get("max_memory_mb"),
         )
 
 
@@ -162,6 +172,9 @@ class TaskCase:
     # optional extensions (D-004)
     agent: AgentSpec | None = None
     env_fault: dict[str, Any] | None = None
+    # A1 (D-040): declared environment preconditions — argv lists that must each exit 0
+    # before the k runs; any failure surfaces as ENV_UNSTABLE (§3.1 rule 1), never KILL.
+    env_preconditions: list[list[str]] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         d: dict[str, Any] = {
@@ -180,6 +193,8 @@ class TaskCase:
             d["agent"] = self.agent.to_dict()
         if self.env_fault is not None:
             d["env_fault"] = dict(self.env_fault)
+        if self.env_preconditions:
+            d["env_preconditions"] = [list(c) for c in self.env_preconditions]
         return d
 
     @classmethod
@@ -197,6 +212,7 @@ class TaskCase:
             sampling=SamplingSpec.from_dict(d.get("sampling", {})),
             agent=AgentSpec.from_dict(d["agent"]) if "agent" in d else None,
             env_fault=d.get("env_fault"),
+            env_preconditions=[list(c) for c in d.get("env_preconditions", [])],
         )
 
     def to_json(self, indent: int | None = 2) -> str:

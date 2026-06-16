@@ -1,7 +1,7 @@
 # Related Work
 
-> **What Probity is.** Probity (debut name; the Python package is still imported as
-> `gauntlet`) is an **evidence-gated integrity gate** for coding agents. It runs the same
+> **What Probity is.** Probity (the Python package, import path, and CLI are all
+> `probity`) is an **evidence-gated integrity gate** for coding agents. It runs the same
 > agent on the same task *k* times in fresh isolation and rules **PASS / KILL /
 > INSUFFICIENT** from a deterministic checker — never an LLM judge anywhere on the verdict
 > path. Its question is narrow and adversarial: *is the agent's "I'm done" claim supported by
@@ -21,8 +21,8 @@
 >   (see *Sources* at the end). We report their public, *stated* features; we did not run their
 >   code, so any internal-behavior claim is attributed to those sources, not independently
 >   re-derived.
-> - **This repository is private and pre-publication** — not pushed or published. The
->   public-facing name is Probity; the package / import path stays `gauntlet`.
+> - **This repository is public** under the MIT License. The project, package, import
+>   path, and CLI are all `probity`.
 
 ---
 
@@ -183,9 +183,9 @@ distinction is its **integrity / falsification posture** (the bottom block). If 
 regression efficiency, evaluate a tool built for that (AgentAssay is one). If your need is a
 strict, cost-no-object integrity gate, Probity is built for that.
 
-For public-facing comparison, keep claims source-backed and conservative. Do not
-publish private comparison tables or model-session reports unless Owner
-explicitly approves that release.
+For public-facing comparison, claims here stay source-backed and conservative;
+private comparison tables and raw model-session reports are not part of this public
+repo.
 
 ---
 

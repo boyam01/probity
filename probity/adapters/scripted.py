@@ -22,8 +22,8 @@ import random
 from pathlib import Path
 from typing import Any
 
-from gauntlet.adapters.base import Adapter, AgentRunOutcome, AgentToolError
-from gauntlet.types import TaskCase, TokenUsage, Trace
+from probity.adapters.base import Adapter, AgentRunOutcome, AgentToolError
+from probity.types import TaskCase, TokenUsage, Trace
 
 
 def _apply_action(workspace: Path, action: dict[str, Any]) -> None:

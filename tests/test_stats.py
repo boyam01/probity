@@ -1,7 +1,7 @@
 """Phase 1: §3.3 numeric ground truth (±1e-3), k_needed gates, monotonicity property."""
 import pytest
 
-from gauntlet.stats import (
+from probity.stats import (
     k_needed,
     k_needed_estimate,
     mean_cv,

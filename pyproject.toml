@@ -1,12 +1,32 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "agent-gauntlet"
+name = "probity"
 version = "0.1.0"
-description = "Deterministic agent reliability audit harness: run the same agent k times, output PASS / KILL / INSUFFICIENT with statistical evidence."
+description = "Falsification-first integrity gate for coding agents: run the same agent k times and decide PASS / KILL / INSUFFICIENT from repo evidence, with zero LLM on the verdict path."
 requires-python = ">=3.11"
+license = { file = "LICENSE" }
+readme = "README.md"
 dependencies = []
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Testing",
+]
 
 [project.optional-dependencies]
 dev = ["pytest"]
+
+[project.scripts]
+probity = "probity.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["probity*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

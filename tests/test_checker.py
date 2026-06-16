@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from gauntlet.checker import (
+from probity.checker import (
     apply_critical_rules,
     assert_protected,
     assert_scope,
@@ -14,7 +14,7 @@ from gauntlet.checker import (
     run_pytest,
     run_pytest_detail,
 )
-from gauntlet.types import (
+from probity.types import (
     AgentInput,
     CheckerSpec,
     CriticalRule,
@@ -248,7 +248,7 @@ def test_check_critical_event_on_data_deletion(minirepo: Path):
 def test_script_checker_non_bool_return_fails_closed(tmp_path: Path):
     """A custom script checker returning a stray truthy object (not bool/int/CheckResult) must
     FAIL CLOSED, not be silently scored as success via bool(obj) (finding #3)."""
-    from gauntlet.checker import _evaluate_script
+    from probity.checker import _evaluate_script
     mod = tmp_path / "badchecker.py"
     mod.write_text(
         "class Truthy:\n    pass\n\n\ndef check(ws, trace, task):\n    return Truthy()\n",
@@ -262,7 +262,7 @@ def test_script_checker_non_bool_return_fails_closed(tmp_path: Path):
 def test_run_pytest_detail_times_out(tmp_path: Path):
     """A hung test command must not hang the auditor forever: the checker subprocess has a
     timeout and a timed-out run fails (it did not pass). (Audit finding #6a.)"""
-    from gauntlet.checker import run_pytest_detail
+    from probity.checker import run_pytest_detail
     passed, detail = run_pytest_detail(
         tmp_path, ["python", "-c", "import time; time.sleep(30)"], timeout=1
     )

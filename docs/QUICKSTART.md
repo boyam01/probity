@@ -4,7 +4,7 @@ Try Probity locally in a few minutes. No API keys are required for the demo,
 calibration, or test suite.
 
 Probity is the public-facing name. The Python package/import path is still
-`gauntlet`.
+`probity`.
 
 ## Option A — Docker
 
@@ -50,9 +50,9 @@ Requirements:
 
 ```bash
 python -m pip install pytest
-python -m gauntlet run demo/patchbot/task_demo_patchbot_01.json --once --seed 1
-python -m gauntlet run demo/patchbot/task_demo_patchbot_01.json
-python -m gauntlet calibrate
+python -m probity run demo/patchbot/task_demo_patchbot_01.json --once --seed 1
+python -m probity run demo/patchbot/task_demo_patchbot_01.json
+python -m probity calibrate
 python -m pytest -q
 ```
 
